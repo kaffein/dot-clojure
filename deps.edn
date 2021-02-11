@@ -236,4 +236,10 @@
 
   ;; - inspired by Ruby's -pne command line option which lets you process lines of stdin bound to $_
   ;; - usage: cat file-of-numbers.txt | clj -Mpne -e '($ (-> $_ Long/parseLong inc))'
-  :pne {:main-opts,["-e","(defmacro,$,[&,body],(list,'while,(list,'when-let,'[$_,(read-line)],(let,[v,(gensym)],(list,'let,(vector,v,(list*,'do,body)),(list,'println,v))),'$_)))"]}}}
+  :pne {:main-opts,["-e","(defmacro,$,[&,body],(list,'while,(list,'when-let,'[$_,(read-line)],(let,[v,(gensym)],(list,'let,(vector,v,(list*,'do,body)),(list,'println,v))),'$_)))"]}
+
+  ;; Injecting the nrepl middlewares allowing clj-refactor to get along with CIDER
+  :cider {:extra-deps {nrepl/nrepl {:mvn/version "0.6.0"}
+                       refactor-nrepl/refactor-nrepl {:mvn/version "2.5.0-SNAPSHOT"}
+                       cider/cider-nrepl {:mvn/version "0.23.0-SNAPSHOT"}}
+          :main-opts ["-m" "nrepl.cmdline" "--middleware" "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]"]}}}
