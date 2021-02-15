@@ -239,8 +239,17 @@
   ;; - usage: cat file-of-numbers.txt | clj -Mpne -e '($ (-> $_ Long/parseLong inc))'
   :pne {:main-opts,["-e","(defmacro,$,[&,body],(list,'while,(list,'when-let,'[$_,(read-line)],(let,[v,(gensym)],(list,'let,(vector,v,(list*,'do,body)),(list,'println,v))),'$_)))"]}
 
-  ;; Injecting the nrepl middlewares allowing clj-refactor to get along with CIDER
-  :cider {:extra-deps {nrepl/nrepl {:mvn/version "0.6.0"}
-                       refactor-nrepl/refactor-nrepl {:mvn/version "2.5.0-SNAPSHOT"}
-                       cider/cider-nrepl {:mvn/version "0.23.0-SNAPSHOT"}}
-          :main-opts ["-m" "nrepl.cmdline" "--middleware" "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]"]}}}
+  ;; Mimics the cider-jack-in invocation to allow clj-refactor to work correctly.
+  ;; Use this one instead of :nrepl when working with CIDER since the latter launches an nrepl
+  ;; without including the needed-CIDER middlewares.
+  :cider-clj {:extra-deps {nrepl/nrepl {:mvn/version "0.8.3"}
+                           refactor-nrepl/refactor-nrepl {:mvn/version "2.5.0"}
+                           cider/cider-nrepl {:mvn/version "0.25.9"}}
+              :main-opts ["-m" "nrepl.cmdline" "--middleware" "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]"]}
+
+  :cider-cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
+                            cider/cider-nrepl {:mvn/version "0.25.9"}
+                            cider/piggieback {:mvn/version "0.5.1"}}
+               :main-opts ["-m" "nrepl.cmdline" "--middleware"
+                           "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
+  }}
